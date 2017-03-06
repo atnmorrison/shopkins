@@ -16,7 +16,7 @@ var port = process.env.PORT || 3000;
 
 console.log(process.env.DATABASE_URL);
 
-var connectionString = process.env.DATABASE_URL || "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading";
+var connectionString = process.env.DATABASE_URL+"?ssl=true" || "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading?ssl=true";
 var massiveInstance = massive.connectSync({connectionString:connectionString});
 app.set('db', massiveInstance);
 
