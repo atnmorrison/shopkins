@@ -12,8 +12,8 @@ var app = express();
 
 //setup the database
 var connectionString = "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading";
-//var massiveInstance = massive.connectSync({connectionString:connectionString});
-//app.set('db', massiveInstance);
+var massiveInstance = massive.connectSync({connectionString:connectionString});
+app.set('db', massiveInstance);
 
 //setup the templating engine
 app.engine('html', mustacheExpress());
@@ -78,16 +78,9 @@ app.get('/shopkins', function(req, res){
 	var templateData = usermanager.getSessionUserData(res);
 	var db = app.get('db');	
 
-	db.shopkins.find({'season' : 1}, function(err, shopkins){
-
-		for(var i=0; i<shopkins.length; ++i) {
-			shopkins[i].image = 'S'+shopkins[i].number.replace('-','_')+'.png';
-		}
-
-
+	db.shopkins.find({}, function(err, shopkins){
 		templateData['shopkins'] = shopkins; 
 		res.render('shopkins', templateData);
-
 	})
 
 	

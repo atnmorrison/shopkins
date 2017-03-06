@@ -4,6 +4,7 @@
   "description": "application for trading shopkins",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "test"
   },
   "keywords": [
@@ -16,9 +17,13 @@
     "body-parser": "^1.16.1",
     "bootstrap": "^4.0.0-alpha.6",
     "client-sessions": "^0.7.0",
-    "express": "^4.14.1",
+    "express": "^4.15.0",
     "massive": "^2.6.0",
     "multer": "^1.3.0",
-    "mustache-express": "^1.2.4"
+    "mustache-express": "^1.2.4",
+    "express": "4.15.0"
+  },
+  "engines": {
+    "node": "6.9.5"
   }
 }
