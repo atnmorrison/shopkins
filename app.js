@@ -13,7 +13,7 @@ var port = process.env.PORT || 3000;
 
 
 //setup the database
-var connectionString = "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading";
+var connectionString = process.env.DATABASE_URL || "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading";
 var massiveInstance = massive.connectSync({connectionString:connectionString});
 app.set('db', massiveInstance);
 
