@@ -9,6 +9,8 @@ var session = require('client-sessions');
 var usermanager = require('./usermanager');
 
 var app = express();
+var port = process.env.PORT || 3000;
+
 
 //setup the database
 var connectionString = "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading";
@@ -195,6 +197,6 @@ app.post('/admin/save/shopkin', function(req, res){
 	});
 })
 
-app.listen(5000, function(){
+app.listen(port, function(){
 	console.log('Example app listening on port 3000!');
 })
