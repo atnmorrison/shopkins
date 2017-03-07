@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html>
 	<head>
-    	<title>Basic Template</title>
+    	<title>{{title}}</title>
 
     	<meta charset="utf-8">
     	<meta name="viewport" content="width=device-width, initial-scale=1">
+  		<meta name="description" content="{{description}}">
+  		<meta name="keywords" content="{{keywords}}">
+
+
   		<link rel="stylesheet" type="text/css" href="/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css" />
+  		<link rel="stylesheet" type="text/css" href="/css/shopkins.css" />
 
   	</head>
  	<body style="height: 100%; min-height: 100%">
- 	  <div class="container-fluid" style="height: 100%">
  	  <nav class="navbar navbar-toggleable-md navbar-inverse" style="background-color: #6d0077;">
  	  	<a class="navbar-brand" href="/">Shopkins Trading Post</a>
 	 	  
@@ -18,7 +22,7 @@
 	  	<div class="collapse navbar-collapse">
 		 	<ul class="navbar-nav mr-auto"> 
 		     	<li class="nav-item active">
-		     		<a class="nav-link" href="/shopkins">Shopkins</a>
+		     		<a class="nav-link" href="/shopkins/1">Shopkins</a>
 		    	</li>
 		    	<li class="nav-item">
 		     		<a class="nav-link" href="/myshopkins">My Collection</a>
@@ -52,3 +56,5 @@
 		 </ul>
 
  	  </nav>
+ 	  <div class="container-fluid">
+

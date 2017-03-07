@@ -1,3 +1,25 @@
-body {
-	font-family: arial, helvetica, sans-serif;
+.btn-success, .btn-success:hover {
+	background-color: #b861d5;
+	border-color: #b861d5;
+}
+
+.btn-primary, .btn-primary:hover {
+	background-color: #d561a5;
+	border-color: #d561a5;
+}
+
+.card{
+	margin: 5px;
+}
+
+.card.Rare{
+	border: 1px solid #61d595;
+}
+
+.card.Ultra.Rare{
+	border: 1px solid #d561a5;	
+}
+
+.card.Limited.Edition{
+	border: 2px solid #bf9931;	
 }

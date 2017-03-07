@@ -1,8 +1,19 @@
 {{> header}}
 <h1>Shopkins</h1>
 
+<div class="btn-group" role="group" aria-label="Basic example">
+  <a role="button" href="/shopkins/1" class="btn btn-secondary">Season 1</a>
+  <a role="button" href="/shopkins/2" class="btn btn-secondary">Season 2</a>
+  <a role="button" href="/shopkins/3" class="btn btn-secondary">Season 3</a>
+  <a role="button" href="/shopkins/4" class="btn btn-secondary">Season 4</a>
+  <a role="button" href="/shopkins/5" class="btn btn-secondary">Season 5</a>
+  <a role="button" href="/shopkins/6" class="btn btn-secondary">Season 6</a>
+  <a role="button" href="/shopkins/7" class="btn btn-secondary">Season 7</a>  
+</div>
+
+<div class="container-fluid" style="padding: 0px; margin: 0px;">
 {{#shopkins}}
-	<div class="card" style="width: 20rem; display:inline-block;">
+	<div class="card {{rarity}}" style="width: 15rem; display:inline-block;">
 	  <img class="card-img-top" src="/images/S{{number}}.png" alt="card image cap" style="width: 100px; height:100px;">
 	  <div class="card-block">
 	    <h4 class="card-title">{{name}}</h4>
@@ -11,6 +22,7 @@
 	  </div>
 	</div>
 {{/shopkins}}
+</div>
 
 
 {{> footer}}

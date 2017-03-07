@@ -16,7 +16,14 @@ var port = process.env.PORT || 3000;
 
 console.log(process.env.DATABASE_URL);
 
-var connectionString = process.env.DATABASE_URL+"?ssl=true" || "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading?ssl=true";
+var connectionString;
+
+if(process.env.DATABASE_URL) {
+	connectionString = process.env.DATABASE_URL+"?ssl=true";
+} else {
+	connectionString = "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading";	
+} 
+
 var massiveInstance = massive.connectSync({connectionString:connectionString});
 app.set('db', massiveInstance);
 
@@ -66,6 +73,8 @@ app.use(function(req, res, next){
 
 app.get('/', function(req, res){
 	var templateData = usermanager.getSessionUserData(res);
+	templateData['title'] = 'Shopkins Trading Post Home';
+	templateData['keywords'] = 'Shopkins,Toys,Trading,Safe'; 
 	res.render('main', templateData);
 });
 
@@ -79,11 +88,16 @@ app.get('/trades', function(req, res){
 	res.render('trades', templateData);
 });
 
-app.get('/shopkins', function(req, res){
+app.get('/shopkins/:season', function(req, res){
 	var templateData = usermanager.getSessionUserData(res);
 	var db = app.get('db');	
+	var season = req.params['season'];
 
-	db.shopkins.find({}, function(err, shopkins){
+	templateData['title'] = 'Season '+season+' Shopkins ';
+	templateData['keywords'] = 'Shopkins,Toys,Season '+season;
+
+
+	db.shopkins.find({season: season}, function(err, shopkins){
 		templateData['shopkins'] = shopkins; 
 		res.render('shopkins', templateData);
 	})
@@ -132,8 +146,6 @@ app.post('/login', function(req, res){
 	});
 		
 });
-
-
 
 
 app.get('/resetpassword', function(req, res){
