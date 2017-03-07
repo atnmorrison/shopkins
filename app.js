@@ -96,8 +96,7 @@ app.get('/shopkins/:season', function(req, res){
 	templateData['title'] = 'Season '+season+' Shopkins ';
 	templateData['keywords'] = 'Shopkins,Toys,Season '+season;
 
-
-	db.shopkins.find({season: season}, function(err, shopkins){
+	db.shopkins.find({season: season}, {order: "season,number"}, function(err, shopkins){
 		templateData['shopkins'] = shopkins; 
 		res.render('shopkins', templateData);
 	})
