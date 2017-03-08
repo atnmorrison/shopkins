@@ -96,12 +96,82 @@ app.get('/shopkins/:season', function(req, res){
 	templateData['title'] = 'Season '+season+' Shopkins ';
 	templateData['keywords'] = 'Shopkins,Toys,Season '+season;
 
-	db.shopkins.find({season: season}, {order: "season,number"}, function(err, shopkins){
-		templateData['shopkins'] = shopkins; 
-		res.render('shopkins', templateData);
-	})
 
-	
+	if(res.locals.user) {
+		db.run('SELECT shopkins.id, name, number, season, rarity, usercollection.count FROM shopkins'+
+				' LEFT OUTER JOIN (SELECT * FROM collection WHERE userid = $1 ) AS usercollection ON shopkins.id = usercollection.shopkinid'+
+				' WHERE season=$2 ORDER BY season, number', [res.locals.user.id, season], function(err, shopkins){
+					templateData['shopkins'] = shopkins;
+
+					console.log(shopkins[1]);
+
+					res.render('shopkins', templateData);					
+				});
+	} else {
+		db.shopkins.find({season: season}, {order: "season,number"}, function(err, shopkins){
+			templateData['shopkins'] = shopkins; 
+			res.render('shopkins', templateData);
+		})
+	}
+});
+
+app.post('/add/:shopkinid', function(req, res){
+
+	if(!res.locals.user){
+		res.send('{"error":"login"}');
+	} else {
+
+
+		var db = app.get('db');
+		var shopkinid = req.params.shopkinid;
+		//check if a collection record exists 
+		db.collection.find({userid:res.locals.user.id, shopkinid: shopkinid}, function(err, collection){
+
+			console.log('find requst completed');
+
+			if(err){
+
+				console.log(error);
+
+				res.send(JSON.stringify({error: err}));
+			} else {
+
+				console.log(collection);
+
+				var row; 
+
+				if(collection.length > 0) {
+					row = collection[0]
+					row.count = row.count+1; 
+				} else {
+					row = {};
+					row.userid = res.locals.user.id;
+					row.shopkinid = parseInt(shopkinid);
+					row.count = 1;
+				}
+
+
+				console.log(row);
+				//save the collection recrod
+
+				db.collection.save(row, function(err, savedCollection){					
+					
+					console.log(err);
+					console.log(savedCollection);
+
+					if(err){
+						res.send(JSON.stringify({error: err}));
+					} else {
+						res.send(JSON.stringify(savedCollection));
+					}
+				});
+			}
+
+
+		});
+	}
+
+
 });
 
 app.get('/myshopkins', function(req, res){

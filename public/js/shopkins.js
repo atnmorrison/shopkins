@@ -47,8 +47,6 @@ $('#saveShopkin').click(function(event){
 	event.preventDefault();
 });
 
-
-
 $('.shopkinlink').click(function(event){
 
 	console.log('link clicked');
@@ -65,4 +63,26 @@ $('.shopkinlink').click(function(event){
 
 	event.preventDefault();
 
+});
+
+
+$('.add-collection').click(function(event){
+
+	var shopkinid = $(this).data('shopkin');
+	var counter = $(this).parent().parent().find('.count');
+
+	console.log(shopkinid);
+
+	$.ajax('/add/'+shopkinid, {
+		method: 'POST',
+		success: function(data, status, xhr) {
+			var collection = JSON.parse(data);
+
+			console.log('collection count: '+collection.count);
+
+			counter.text(collection.count);
+		}
+	})
+
+	event.preventDefault(); 
 });

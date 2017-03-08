@@ -14,15 +14,17 @@
 <div class="container-fluid" style="padding: 0px; margin: 0px;">
 {{#shopkins}}
 	<div class="card {{rarity}}" style="width: 15rem; display:inline-block;">
+	  <div class="count" style="position:absolute; right:0px; top:0px; padding:5px;">
+	  	{{count}}
+  	  </div>
 	  <img class="card-img-top" src="/images/S{{number}}.png" alt="card image cap" style="width: 100px; height:100px;">
 	  <div class="card-block">
 	    <h4 class="card-title">{{name}}</h4>
 	    <p class="card-text">{{description}}</p>
-	    <a href="#" class="btn btn-primary">Add To Collection</a>
+	    <a href="" class="btn btn-primary add-collection" data-shopkin="{{id}}">Add To Collection</a>
 	  </div>
 	</div>
 {{/shopkins}}
 </div>
-
 
 {{> footer}}
