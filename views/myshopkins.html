@@ -1,3 +1,19 @@
 {{> header}}
-<h1>My Shopkins</h1>
+	<div class="container-fluid" style="padding: 0px; margin: 0px;">
+	<h1>My Shopkins Collection</h1>
+
+	{{#shopkins}}
+		<div class="card {{rarity}}" style="width: 15rem; display:inline-block;">
+		  <div class="count" style="position:absolute; right:0px; top:0px; padding:5px;">
+		  	{{count}}
+	  	  </div>
+		  <img class="card-img-top" src="/images/S{{number}}.png" alt="card image cap" style="width: 100px; height:100px;">
+		  <div class="card-block">
+		    <h4 class="card-title">{{name}}</h4>
+		    <p class="card-text">{{description}}</p>
+		    <a href="" class="btn btn-primary remove-collection" data-shopkin="{{id}}">Remove</a>
+		  </div>
+		</div>
+	{{/shopkins}}
+	</div>
 {{> footer}}

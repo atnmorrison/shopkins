@@ -88,6 +88,46 @@ $('.add-collection').click(function(event){
 });
 
 
+$('.remove-collection').click(function(event){
+
+	event.preventDefault();
+
+	var shopkinid = $(this).data('shopkin');	
+	var counter = $(this).parent().parent().find('.count');
+
+	$.ajax('/remove/'+shopkinid, {
+		method: 'POST',
+		success: function(data, status, xhr) {
+
+			var response = JSON.parse(data);
+
+			if(response['success'] == true) {
+				
+
+				
+
+				console.log(counter.text());
+
+				var count = parseInt(counter.text());
+
+				console.log(counter);
+				console.log(count);
+
+
+				if(count == 1) {
+					counter.parent().remove();
+				} else {
+					counter.text(--count);
+				}
+
+			}
+
+		}
+	});
+
+});
+
+
 $('.delete').click(function(event){
 
 	var shopkinid = $(this).data('id');

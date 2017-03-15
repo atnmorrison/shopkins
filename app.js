@@ -200,22 +200,84 @@ app.post('/add/:shopkinid', function(req, res){
 
 		});
 	}
-
-
 });
 
 app.get('/myshopkins', function(req, res){
+	
+	var db = app.get('db');
 	var templateData = usermanager.getSessionUserData(res);
-	res.render('myshopkins', templateData);
+	if(res.locals.user) {
+		db.run('SELECT shopkins.id, name, number, season, rarity, collection.count FROM collection'+
+				' INNER JOIN shopkins ON shopkins.id = collection.shopkinid'+
+				' WHERE collection.userid = $1 ORDER BY season, number', [res.locals.user.id], function(err, shopkins){
+					
+					if(err)
+						console.log(err);
+					else 
+						templateData['shopkins'] = shopkins;
+					
+					res.render('myshopkins', templateData);
+
+		});
+	} else {
+		res.render('myshopkins', templateData);
+	}
+
 });
 
+
+app.post('/remove/:shopkinid', function(req, res){
+
+	var db = app.get('db');
+	var shopkinid = req.params.shopkinid;
+
+	if(!res.locals.user){
+		res.send('{"error":"login"}');
+	} else {
+		db.collection.find({userid:res.locals.user.id, shopkinid: shopkinid}, function(err, colRecord){
+
+			if(err) {
+				console.log(error);
+				res.send(JSON.stringify({error: err}));				
+			} else {
+
+				var row = colRecord[0];
+
+				if(row.count == 1) {
+					db.collection.destroy(row, function(err, colDestroyed){
+						if(err) {
+							res.send({"error":err});
+						} else {
+							res.send('{"success": true}');
+						}
+					});
+				} else {
+					row.count = row.count - 1;
+					db.collection.save(row, function(err, colUpdated){
+						if(err) {
+							res.send({"error":err});
+						} else {
+							res.send('{"success": true}');
+						}
+					});
+				}
+
+			}
+
+		});
+	}
+
+})
+
+
+app.post('/toggletrading', function(req, res){
+
+})
 
 
 /**
  * User mangement routes
  */ 
-
-
 app.get('/register', function(req, res){
 	res.render('register');
 });
