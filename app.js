@@ -54,8 +54,11 @@ app.use(function(req, res, next){
 	console.log(req.session.username);
 	console.log(req.url);
 
+
 	if(req.session && req.session.username) {
 		var db = app.get('db');
+
+		console.log(db);
 		db.users.findOne({username: req.session.username}, function(err, user){
 			if(err){
 			
@@ -123,7 +126,6 @@ app.get('/shopkins/:season', function(req, res){
 
 	templateData['title'] = 'Season '+season+' Shopkins ';
 	templateData['keywords'] = 'Shopkins,Toys,Season '+season;
-
 
 	if(res.locals.user) {
 		db.run('SELECT shopkins.id, name, number, season, rarity, usercollection.count FROM shopkins'+
