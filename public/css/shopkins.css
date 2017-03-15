@@ -14,12 +14,21 @@
 
 .card.Rare{
 	border: 1px solid #61d595;
+	background-color: #bce3cd;
 }
 
 .card.Ultra.Rare{
 	border: 1px solid #d561a5;	
+	background-color: #d5a0bf;
 }
+
 
 .card.Limited.Edition{
 	border: 2px solid #bf9931;	
+	background-color: #e7d7ac;
+}
+
+.card.Special.Edition{
+	border: 1px solid #2772fb;	
+	background-color: #aebedb;
 }

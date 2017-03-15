@@ -61,8 +61,8 @@
 
 
 	{{#shopkins}}
-		<div>
-		  <a href="" class="shopkinlink" data-id="{{id}}" data-name="{{name}}" data-season="{{season}}" data-number="{{number}}" data-rarity="{{rarity}}">{{name}}</h2>
+		<div id="shopkin_{{id}}">
+		  <a href="#" class="shopkinlink" data-id="{{id}}" data-name="{{name}}" data-season="{{season}}" data-number="{{number}}" data-rarity="{{rarity}}">{{name}}</a><a href="#" class="delete" data-id="{{id}}">delete</a>
 		</div>
 	{{/shopkins}}
 {{> footer}}

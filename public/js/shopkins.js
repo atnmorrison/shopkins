@@ -86,3 +86,27 @@ $('.add-collection').click(function(event){
 
 	event.preventDefault(); 
 });
+
+
+$('.delete').click(function(event){
+
+	var shopkinid = $(this).data('id');
+	console.log(shopkinid);
+
+	$.ajax('/admin/remove/shopkin/'+shopkinid, {
+		method: 'POST',
+		success: function(response, status, xhr){
+			
+			if(response.error) {
+				console.log(response.error);
+			} else {
+				console.log('removeing shopkin '+shopkinid);
+				$('#shopkin_'+shopkinid).remove();
+			}	
+		}
+
+	});
+
+	event.preventDefault();
+
+});

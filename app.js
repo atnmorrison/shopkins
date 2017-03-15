@@ -45,13 +45,14 @@ app.use(session({
 	activeDuration: 5 * 60 * 1000
 }));
 
-
+// user setup middleware
 app.use(function(req, res, next){
 
 	res.locals.loggedIn = false; 
 
 	console.log('running middleware');
 	console.log(req.session.username);
+	console.log(req.url);
 
 	if(req.session && req.session.username) {
 		var db = app.get('db');
@@ -59,6 +60,9 @@ app.use(function(req, res, next){
 			if(err){
 			
 			} else {
+				//clear the password field 
+				user.password = null;
+
 				res.locals.loggedIn = true;
 				res.locals.user = user;
 				req.session.username = user.username;
@@ -70,6 +74,30 @@ app.use(function(req, res, next){
  	}
 });
 
+
+
+// authentication check middleware
+app.use(function(req, res, next){
+
+
+	if(req.url.startsWith('/admin')) {
+		if(!res.locals.user || res.locals.user.username != 'scott@morrisonlive.ca') {
+			res.redirect('/login');
+		} else {
+			next();
+		}
+	} else {
+		next(); 
+	}
+
+
+
+});
+
+
+/**
+ * Application routes
+ */
 
 app.get('/', function(req, res){
 	var templateData = usermanager.getSessionUserData(res);
@@ -179,6 +207,13 @@ app.get('/myshopkins', function(req, res){
 	res.render('myshopkins', templateData);
 });
 
+
+
+/**
+ * User mangement routes
+ */ 
+
+
 app.get('/register', function(req, res){
 	res.render('register');
 });
@@ -248,7 +283,18 @@ app.post('/resetpassword', function(req, res) {
 
 });
 
+
+/**
+ * Administration routes
+ */
+
+
 app.get('/admin/users', function(req, res){
+
+	if(!res.locals.user || res.locals.user.username != 'scott@morrisonlive.ca') {
+		res.redirect('/authorization');
+	}
+
 	res.render('admin-users', {'test':'pretty cool'});
 })
 
@@ -271,6 +317,26 @@ app.get('/admin/shopkin/:id', function(req, res){
 	});
 
 })
+
+
+app.post('/admin/remove/shopkin/:id', function(req, res){
+
+	var db = app.get('db');
+	var shopkinId = req.params.id; 
+
+	db.shopkins.destroy({id:shopkinId}, function(err, shopkin){
+
+		if(err) {
+			res.setHeader('Content-Type', 'application/json');
+			res.send('{"error" : '+JSON.stringify(err)+'}');
+		} else {
+			res.setHeader('Content-Type', 'application/json');
+			res.send(JSON.stringify(shopkin));
+		}
+
+	});
+
+});
 
 app.post('/admin/save/shopkin', function(req, res){
 	var db = app.get('db');
