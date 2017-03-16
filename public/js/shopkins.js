@@ -102,17 +102,13 @@ $('.remove-collection').click(function(event){
 			var response = JSON.parse(data);
 
 			if(response['success'] == true) {
-				
-
-				
+			
 
 				console.log(counter.text());
-
 				var count = parseInt(counter.text());
 
 				console.log(counter);
 				console.log(count);
-
 
 				if(count == 1) {
 					counter.parent().remove();

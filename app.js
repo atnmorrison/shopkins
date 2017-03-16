@@ -355,12 +355,23 @@ app.post('/resetpassword', function(req, res) {
 
 app.get('/admin/users', function(req, res){
 
-	if(!res.locals.user || res.locals.user.username != 'scott@morrisonlive.ca') {
-		res.redirect('/authorization');
-	}
 
-	res.render('admin-users', {'test':'pretty cool'});
-})
+	var db = app.get('db');
+	var templateData = usermanager.getSessionUserData(res);
+
+
+	db.users.find({}, function(err, users){
+
+		if(err)  {
+			res.render('admin-users', templateData);
+		} else {
+			templateData['users'] = users;
+			res.render('admin-users', templateData);
+		}
+
+	});	
+
+});
 
 app.get('/admin/shopkins', function(req, res){
 	var db = app.get('db');
