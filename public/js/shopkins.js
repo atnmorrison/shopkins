@@ -78,9 +78,12 @@ $('.add-collection').click(function(event){
 		success: function(data, status, xhr) {
 			var collection = JSON.parse(data);
 
-			console.log('collection count: '+collection.count);
-
-			counter.text(collection.count);
+			if(collection['error'] == 'login') {
+				window.location.href = '/login';
+			} else {
+				console.log('collection count: '+collection.count);
+				counter.text(collection.count);
+			}
 		}
 	})
 

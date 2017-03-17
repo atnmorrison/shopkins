@@ -400,7 +400,6 @@ app.post('/admin/remove/shopkin/:id', function(req, res){
 	var shopkinId = req.params.id; 
 
 	db.shopkins.destroy({id:shopkinId}, function(err, shopkin){
-
 		if(err) {
 			res.setHeader('Content-Type', 'application/json');
 			res.send('{"error" : '+JSON.stringify(err)+'}');
