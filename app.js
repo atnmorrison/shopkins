@@ -111,17 +111,21 @@ app.get('/', function(req, res){
 
 app.get('/howitworks', function(req, res){
 	var templateData = usermanager.getSessionUserData(res);
+	templateData['howitworks'] = true;
 	res.render('howitworks', templateData);
 });
 
 app.get('/trades', function(req, res){
 	var templateData = usermanager.getSessionUserData(res);
+	templateData['trades'] = true;
 	res.render('trades', templateData);
 });
 
 app.get('/shopkins/:season', function(req, res){
 	var templateData = usermanager.getSessionUserData(res);
+	templateData['shopkinactive'] = true;
 	var db = app.get('db');	
+
 	var season = req.params['season'];
 
 	templateData['title'] = 'Season '+season+' Shopkins ';
@@ -206,6 +210,7 @@ app.get('/myshopkins', function(req, res){
 	
 	var db = app.get('db');
 	var templateData = usermanager.getSessionUserData(res);
+	templateData['myshopkins'] = true;
 	if(res.locals.user) {
 		db.run('SELECT shopkins.id, name, number, season, rarity, collection.count FROM collection'+
 				' INNER JOIN shopkins ON shopkins.id = collection.shopkinid'+
