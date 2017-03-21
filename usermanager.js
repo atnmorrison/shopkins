@@ -1,6 +1,4 @@
 	crypto = require('crypto');
-
-
 	exports.createUser = function(userData, db){
 		
 		var salt = crypto.randomBytes(32);

@@ -149,3 +149,22 @@ $('.delete').click(function(event){
 	event.preventDefault();
 
 });
+
+
+$('#toggleActive').click(function(event){
+
+	console.log($(this).is(':checked'));
+
+	$.ajax('/toggleactive', {
+		method: 'POST',
+		data: {"checked": $(this).is(':checked')},
+		success: function(response, status, xhr){
+
+			if(response.error) {
+				console.log(response.error);
+			}
+
+		}
+	});
+
+});

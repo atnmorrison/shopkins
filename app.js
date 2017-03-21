@@ -7,14 +7,10 @@ var bodyParser = require('body-parser');
 var multer = require('multer');
 var session = require('client-sessions');
 var usermanager = require('./usermanager');
+var trader = require('./trader');
 
 var app = express();
 var port = process.env.PORT || 3000;
-
-
-//setup the database
-
-console.log(process.env.DATABASE_URL);
 
 var connectionString;
 
@@ -177,6 +173,8 @@ app.post('/add/:shopkinid', function(req, res){
 				if(collection.length > 0) {
 					row = collection[0]
 					row.count = row.count+1; 
+					trader.findTrades(res.locals.user.id, shopkinid);
+
 				} else {
 					row = {};
 					row.userid = res.locals.user.id;
@@ -212,6 +210,13 @@ app.get('/myshopkins', function(req, res){
 	var templateData = usermanager.getSessionUserData(res);
 	templateData['myshopkins'] = true;
 	if(res.locals.user) {
+
+
+		console.log(res.locals.user.trading_active);
+
+		if(res.locals.user.trading_active)
+			templateData['active'] = res.locals.user.trading_active;
+
 		db.run('SELECT shopkins.id, name, number, season, rarity, collection.count FROM collection'+
 				' INNER JOIN shopkins ON shopkins.id = collection.shopkinid'+
 				' WHERE collection.userid = $1 ORDER BY season, number', [res.locals.user.id], function(err, shopkins){
@@ -225,11 +230,42 @@ app.get('/myshopkins', function(req, res){
 
 		});
 	} else {
-		res.render('myshopkins', templateData);
+		res.redirect('login');
 	}
 
 });
 
+
+app.post('/toggleactive', function(req, res){
+
+	var db = app.get('db');
+
+	if(res.locals.user) {
+	
+		console.log(req.body.checked);
+		console.log(res.locals.user.id)
+
+		db.run('UPDATE users SET trading_active = $1 WHERE id = $2', [req.body.checked, res.locals.user.id], function(err, user){
+
+			if(err) {
+				console.log(err);
+			} else {
+
+				if(req.body.checked) {
+					db.run('SELECT shopkinid FROM collection WHERE userid = $1 AND count > 1', [res.locals.user.id], function(err, collections){
+
+						for(var i=0; i<collections.length; ++i) {
+						
+							console.log('finding trades');
+							trader.findTrades(res.locals.user.id, collections[i].shopkinid);
+						}
+					});
+				}
+			}
+
+		});
+	}
+});
 
 app.post('/remove/:shopkinid', function(req, res){
 
@@ -275,11 +311,6 @@ app.post('/remove/:shopkinid', function(req, res){
 })
 
 
-app.post('/toggletrading', function(req, res){
-
-})
-
-
 /**
  * User mangement routes
  */ 
@@ -320,6 +351,11 @@ app.post('/login', function(req, res){
 		
 });
 
+
+app.get('/logout', function(req, res){
+	req.session.destroy(); 
+	res.redirect('/');
+});
 
 app.get('/resetpassword', function(req, res){
 	var db = app.get('db');
