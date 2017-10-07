@@ -29,6 +29,7 @@ app.set('view engine', 'html');
 app.set('views', __dirname+'/views');
 
 app.use(express.static(__dirname+'/public'));
+app.use(express.static(__dirname+'/games'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -45,16 +46,9 @@ app.use(session({
 app.use(function(req, res, next){
 
 	res.locals.loggedIn = false; 
-
-	console.log('running middleware');
-	console.log(req.session.username);
-	console.log(req.url);
-
-
 	if(req.session && req.session.username) {
 		var db = app.get('db');
 
-		console.log(db);
 		db.users.findOne({username: req.session.username}, function(err, user){
 			if(err){
 			
@@ -114,8 +108,101 @@ app.get('/howitworks', function(req, res){
 app.get('/trades', function(req, res){
 	var templateData = usermanager.getSessionUserData(res);
 	templateData['trades'] = true;
-	res.render('trades', templateData);
+
+	var db = app.get('db');
+	if(res.locals.user) {
+
+		db.run('SELECT trades.id, shopkins1.number as number1, shopkins2.number as number2, user1, user2, user1accepted, user2accepted, status FROM trades '+
+					' LEFT OUTER JOIN shopkins AS shopkins1 ON user1item = shopkins1.id '+
+					 ' LEFT OUTER JOIN shopkins AS shopkins2 ON user2item = shopkins2.id WHERE user1 = $1 OR user2 = $1', [res.locals.user.id], function(err, currenttrades){
+					 
+					 	if(err) {
+					 		console.log(err);
+					 	}
+
+
+					 	var tradeset = [];
+					 	for(var i=0; i<currenttrades.length; ++i) {
+
+					 		var t = {id: currenttrades[i]['id']}
+
+					 		if(currenttrades[i].user1 == res.locals.user.id ) {
+					 			t.shopkin1number = currenttrades[i]['number1'];
+					 			t.shopkin2number = currenttrades[i]['number2'];
+					 			t.accepted = currenttrades[i]['user1accepted'];
+					 			t.partnerAccepted = currenttrades[i]['user2accepted'];
+
+					 		} else {
+					 			t.shopkin1number = currenttrades[i]['number2'];
+					 			t.shopkin2number = currenttrades[i]['number1'];
+					 			t.accepted = currenttrades[i]['user2accepted'];
+					 			t.partnerAccepted = currenttrades[i]['user1accepted'];				 			
+					 		}
+
+					 		if(t.accepted && t.partnerAccepted) {
+					 			t.image = 'trade-accepted.png';
+					 		} else if(t.accepted) {
+					 			t.image = 'trade-left-accept.png';
+					 		} else if(t.partnerAccepted) {
+					 			t.image = 'trade-right-accept.png';
+					 		} else {
+					 			t.image = 'trade-initiated.png';
+					 		}
+
+
+					 		tradeset.push(t);
+					 	}
+
+
+					 	templateData['currenttrades'] = tradeset; 
+					 	res.render('trades', templateData);
+
+					 });
+	} else {
+		res.redirect('login');
+	}
+
 });
+
+
+app.post('/shopkins/trade/accept/:tradeid', function(req, res) {
+
+	if(!res.locals.user){
+		res.send('{"error":"login"}');
+	} else {
+
+		var db = app.get('db');
+		var tradeid = req.params.tradeid;
+
+		db.trades.find({id:tradeid}, function(err, trades){
+
+			var trade = trades[0];
+
+			if(err) {
+				res.send(JSON.stringify({error: err}));
+			}
+
+			if(trade.user1 == res.locals.user.id) {
+				trade.user1accepted = true;
+			} else {
+				trade.user2accepted = true; 
+			}
+
+			db.trades.save(trade, function(err, updatedTrade){
+
+				if(err) {
+					res.send(JSON.stringify({error: err}));
+				} else {
+					res.send(JSON.stringify(updatedTrade));
+				}
+
+			});
+		});
+
+	}
+
+});
+
 
 app.get('/shopkins/:season', function(req, res){
 	var templateData = usermanager.getSessionUserData(res);
