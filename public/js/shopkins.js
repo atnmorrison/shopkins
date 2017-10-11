@@ -159,12 +159,37 @@ $('#toggleActive').click(function(event){
 		method: 'POST',
 		data: {"checked": $(this).is(':checked')},
 		success: function(response, status, xhr){
-
 			if(response.error) {
 				console.log(response.error);
 			}
 
 		}
+	});
+});
+
+$('.accept-trade').click(function(event){
+	var tradeid = $(this).data('tradeid');
+	console.log(tradeid);
+
+	$.ajax('/shopkins/trade/accept/'+tradeid, {
+
+		method: 'POST',
+		success: function(response, status, xhr) {
+			if(response.error) {
+				console.log(response.error);
+			} else {
+
+				var img = $('#status_'+tradeid);
+
+				console.log(img.attr('src'));
+				if(img.attr('src') == '/images/trade-right-accept.png'){
+					img.attr('src' , '/images/trade-accepted.png');
+				} else {
+					img.attr('src', '/images/trade-left-accept.png');
+				}
+			}				
+		}
+
 	});
 
 });
