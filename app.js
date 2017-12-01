@@ -25,8 +25,6 @@ if(process.env.DATABASE_URL) {
 
 massive(connectionString).then(massivInstance => {
 
-
-
 	app.set('db', massiveInstance);
 
 	//setup the templating engine
@@ -566,4 +564,5 @@ massive(connectionString).then(massivInstance => {
 	app.listen(port, function(){
 		console.log('Example app listening on port 3000!');
 	})
-});
+
+}).catch(error => console.log(error.message));
