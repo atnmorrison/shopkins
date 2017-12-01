@@ -415,7 +415,7 @@ app.post('/doRegistration', function(req, res){
 
 		const msg = {
 			to: userData.email,
-			from: scott@morrisonlive.ca,
+			from: 'scott@morrisonlive.ca',
 			subject: 'Welcome to Shopkins Tradding Post!',
 			text: 'Make sure to setup your collection and we\'ll notify you when we find a trade match with your doubles',
 			html: '<strong>Make sure to setup your collection and we\'ll notify you when we find a trade match with your doubles</strong>'
@@ -423,7 +423,7 @@ app.post('/doRegistration', function(req, res){
 
 		sgMail.send(msg);
 		res.render('message', {'message':'Thanks for registering! You can now setup you collection and start trading.'});
-			
+
 	} else {
 		res.render('register', {'errors': errors, 'values':userData});
 	}
