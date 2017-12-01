@@ -253,7 +253,7 @@ massive(connectionString).then(massiveInstance => {
 
 					console.log(collection);
 
-					const row; 
+					let row; 
 
 					if(collection.length > 0) {
 						row = collection[0]
@@ -367,7 +367,7 @@ massive(connectionString).then(massiveInstance => {
 					res.send(JSON.stringify({error: err}));				
 				} else {
 
-					const row = colRecord[0];
+					let row = colRecord[0];
 
 					if(row.count == 1) {
 						db.collection.destroy(row, function(err, colDestroyed){
