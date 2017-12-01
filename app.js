@@ -9,6 +9,9 @@ var session = require('client-sessions');
 var usermanager = require('./usermanager');
 var trader = require('./trader');
 
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 var app = express();
 var port = process.env.PORT || 3000;
 
@@ -82,9 +85,6 @@ app.use(function(req, res, next){
 	} else {
 		next(); 
 	}
-
-
-
 });
 
 
@@ -412,7 +412,18 @@ app.post('/doRegistration', function(req, res){
 
 	if(errors.length == 0) {
 		usermanager.createUser(userData, app.get('db'));
-		res.render('message', {'message':'Thanks for registering! You can now setup you collection and start trading.'});	
+
+		const msg = {
+			to: userData.email,
+			from: scott@morrisonlive.ca,
+			subject: 'Welcome to Shopkins Tradding Post!',
+			text: 'Make sure to setup your collection and we\'ll notify you when we find a trade match with your doubles',
+			html: '<strong>Make sure to setup your collection and we\'ll notify you when we find a trade match with your doubles</strong>'
+		};
+
+		sgMail.send(msg);
+		res.render('message', {'message':'Thanks for registering! You can now setup you collection and start trading.'});
+			
 	} else {
 		res.render('register', {'errors': errors, 'values':userData});
 	}
