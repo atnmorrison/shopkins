@@ -206,11 +206,11 @@ massive(connectionString).then(massiveInstance => {
 
 
 	app.get('/shopkins/:season', function(req, res){
-		var templateData = usermanager.getSessionUserData(res);
+		const templateData = usermanager.getSessionUserData(res);
 		templateData['shopkinactive'] = true;
-		var db = app.get('db');	
+		const db = app.get('db');	
 
-		var season = req.params['season'];
+		const season = req.params['season'];
 
 		templateData['title'] = 'Season '+season+' Shopkins ';
 		templateData['keywords'] = 'Shopkins,Toys,Season '+season;
@@ -220,10 +220,7 @@ massive(connectionString).then(massiveInstance => {
 					' LEFT OUTER JOIN (SELECT * FROM collection WHERE userid = $1 ) AS usercollection ON shopkins.id = usercollection.shopkinid'+
 					' WHERE season=$2 ORDER BY season, number', [res.locals.user.id, season], function(err, shopkins){
 						templateData['shopkins'] = shopkins;
-
-						console.log(shopkins[1]);
-
-						res.render('shopkins', templateData);					
+						res.render('shopkins', templateData);
 					});
 		} else {
 			db.shopkins.find({season: season}, {order: "season,number"}, function(err, shopkins){
@@ -240,8 +237,8 @@ massive(connectionString).then(massiveInstance => {
 		} else {
 
 
-			var db = app.get('db');
-			var shopkinid = req.params.shopkinid;
+			const db = app.get('db');
+			const shopkinid = req.params.shopkinid;
 			//check if a collection record exists 
 			db.collection.find({userid:res.locals.user.id, shopkinid: shopkinid}, function(err, collection){
 
@@ -256,7 +253,7 @@ massive(connectionString).then(massiveInstance => {
 
 					console.log(collection);
 
-					var row; 
+					const row; 
 
 					if(collection.length > 0) {
 						row = collection[0]
@@ -294,8 +291,8 @@ massive(connectionString).then(massiveInstance => {
 
 	app.get('/myshopkins', function(req, res){
 		
-		var db = app.get('db');
-		var templateData = usermanager.getSessionUserData(res);
+		const db = app.get('db');
+		const templateData = usermanager.getSessionUserData(res);
 		templateData['myshopkins'] = true;
 		if(res.locals.user) {
 
@@ -326,7 +323,7 @@ massive(connectionString).then(massiveInstance => {
 
 	app.post('/toggleactive', function(req, res){
 
-		var db = app.get('db');
+		const db = app.get('db');
 
 		if(res.locals.user) {
 		
@@ -342,7 +339,7 @@ massive(connectionString).then(massiveInstance => {
 					if(req.body.checked) {
 						db.run('SELECT shopkinid FROM collection WHERE userid = $1 AND count > 1', [res.locals.user.id], function(err, collections){
 
-							for(var i=0; i<collections.length; ++i) {
+							for(let i=0; i<collections.length; ++i) {
 							
 								console.log('finding trades');
 								trader.findTrades(res.locals.user.id, collections[i].shopkinid);
@@ -357,8 +354,8 @@ massive(connectionString).then(massiveInstance => {
 
 	app.post('/remove/:shopkinid', function(req, res){
 
-		var db = app.get('db');
-		var shopkinid = req.params.shopkinid;
+		const db = app.get('db');
+		const shopkinid = req.params.shopkinid;
 
 		if(!res.locals.user){
 			res.send('{"error":"login"}');
@@ -370,7 +367,7 @@ massive(connectionString).then(massiveInstance => {
 					res.send(JSON.stringify({error: err}));				
 				} else {
 
-					var row = colRecord[0];
+					const row = colRecord[0];
 
 					if(row.count == 1) {
 						db.collection.destroy(row, function(err, colDestroyed){
@@ -408,8 +405,8 @@ massive(connectionString).then(massiveInstance => {
 
 	app.post('/doRegistration', function(req, res){
 		
-		var userData = req.body;
-		var errors = usermanager.validateNewUserForm(userData);
+		const userData = req.body;
+		const errors = usermanager.validateNewUserForm(userData);
 
 		if(errors.length == 0) {
 			usermanager.createUser(userData, app.get('db'));
@@ -438,7 +435,7 @@ massive(connectionString).then(massiveInstance => {
 
 	app.post('/login', function(req, res){
 
-		var db = app.get('db');
+		const db = app.get('db');
 		usermanager.verifyPassword(req.body.username, req.body.password, db, function(success){
 			if(success){
 				req.session.username = req.body.username;
@@ -457,15 +454,15 @@ massive(connectionString).then(massiveInstance => {
 	});
 
 	app.get('/resetpassword', function(req, res){
-		var db = app.get('db');
-		var templateData = usermanager.getSessionUserData(res);
+		const db = app.get('db');
+		const templateData = usermanager.getSessionUserData(res);
 		templateData['notoken'] = true; 
 		res.render('resetpassword', templateData);
 	});
 
 	app.get('/resetpassword:/token', function(req, res){
-		var db = app.get('db');
-		var templateData = usermanager.getSessionUserData(res);
+		const db = app.get('db');
+		const templateData = usermanager.getSessionUserData(res);
 
 		//validate the token 
 
@@ -481,9 +478,9 @@ massive(connectionString).then(massiveInstance => {
 
 		console.log(req.body);
 
-		var token = req.body.token;
-		var password = req.body.password; 
-		var password_confirmation = req.body.password_confirmation; 
+		const token = req.body.token;
+		const password = req.body.password; 
+		const password_confirmation = req.body.password_confirmation; 
 
 	});
 
@@ -496,8 +493,8 @@ massive(connectionString).then(massiveInstance => {
 	app.get('/admin/users', function(req, res){
 
 
-		var db = app.get('db');
-		var templateData = usermanager.getSessionUserData(res);
+		const db = app.get('db');
+		const templateData = usermanager.getSessionUserData(res);
 
 
 		db.users.find({}, function(err, users){
@@ -514,7 +511,7 @@ massive(connectionString).then(massiveInstance => {
 	});
 
 	app.get('/admin/shopkins', function(req, res){
-		var db = app.get('db');
+		const db = app.get('db');
 		db.shopkins.find({}, function(err, shopkins){
 			res.render('admin-shopkins', {'shopkins': shopkins || []});
 		});
@@ -536,8 +533,8 @@ massive(connectionString).then(massiveInstance => {
 
 	app.post('/admin/remove/shopkin/:id', function(req, res){
 
-		var db = app.get('db');
-		var shopkinId = req.params.id; 
+		const db = app.get('db');
+		const shopkinId = req.params.id; 
 
 		db.shopkins.destroy({id:shopkinId}, function(err, shopkin){
 			if(err) {
@@ -553,8 +550,8 @@ massive(connectionString).then(massiveInstance => {
 	});
 
 	app.post('/admin/save/shopkin', function(req, res){
-		var db = app.get('db');
-		var shopkin = req.body;
+		const db = app.get('db');
+		const shopkin = req.body;
 		db.shopkins.save(shopkin, function(err, shopkin){
 			res.setHeader('Content-Type','application/json');
 			res.send(JSON.stringify(shopkin));
