@@ -21,7 +21,7 @@
 	  		user.password = key.toString('hex'); 
 	  		console.log(user.password);
 
-	  		db.addresses.save(address, function(err, dbAddress){
+	  		db.addresses.save(address).then(dbAddress => {
 
 	  			if(err){
 	  			  console.log(err);
@@ -30,7 +30,7 @@
 	  			console.log(dbAddress);
 
 	  			user.address_id = dbAddress.id;
-	  			db.users.save(user, function(err, dbUser){
+	  			db.users.save(user).then( dbUser => {
 	  				if(err) {
 	  					console.log(err);
 	  				}
@@ -95,7 +95,7 @@
 
 	exports.verifyPassword = function(username, password, db, cb){
 
-		db.users.findOne({username: username}, function(err, user){
+		db.users.findOne({username: username}).then( user => {
 			var salt = Buffer.from(user.salt, "hex");
 			crypto.pbkdf2(password, salt, 100000, 512, 'sha512', (err, key) => {
 				if(user.password == key.toString('hex')){
