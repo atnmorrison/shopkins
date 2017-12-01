@@ -1,21 +1,21 @@
-var http = require('http');
-var express = require('express');
-var crypto = require('crypto');
+const http = require('http');
+const express = require('express');
+const crypto = require('crypto');
 const massive = require('massive');
-var mustacheExpress = require('mustache-express');
-var bodyParser = require('body-parser');
-var multer = require('multer');
-var session = require('client-sessions');
-var usermanager = require('./usermanager');
-var trader = require('./trader');
+const mustacheExpress = require('mustache-express');
+const bodyParser = require('body-parser');
+const multer = require('multer');
+const session = require('client-sessions');
+const usermanager = require('./usermanager');
+const trader = require('./trader');
 
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-var app = express();
-var port = process.env.PORT || 3000;
+const app = express();
+const port = process.env.PORT || 3000;
 
-var connectionString;
+let connectionString;
 
 if(process.env.DATABASE_URL) {
 	connectionString = process.env.DATABASE_URL+"?ssl=true";
@@ -51,7 +51,7 @@ massive(connectionString).then(massiveInstance => {
 
 		res.locals.loggedIn = false; 
 		if(req.session && req.session.username) {
-			var db = app.get('db');
+			const db = app.get('db');
 
 			db.users.findOne({username: req.session.username}, function(err, user){
 				if(err){
