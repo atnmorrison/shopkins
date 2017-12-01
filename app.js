@@ -263,7 +263,7 @@ massive(connectionString).then(massivInstance => {
 					if(collection.length > 0) {
 						row = collection[0]
 						row.count = row.count+1; 
-						trader.findTrades(res.locals.user.id, shopkinid);
+						trader.findTrades(res.locals.user.id, shopkinid, db);
 
 					} else {
 						row = {};

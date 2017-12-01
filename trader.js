@@ -1,16 +1,4 @@
-var massive = require('massive');
-
-var connectionString;
-if(process.env.DATABASE_URL) {
-	connectionString = process.env.DATABASE_URL+"?ssl=true";
-} else {
-	connectionString = "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading";	
-} 
-
-var db = massive.connectSync({connectionString:connectionString});
-
-
-exports.findTrades = function(userId, doubleId) {
+exports.findTrades = function(userId, doubleId, db) {
 
 	//find shopkins that the user has 
 	db.run('SELECT * FROM collection WHERE userid = $1', [userId], function(err, alreadyHave) {
