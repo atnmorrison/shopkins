@@ -23,7 +23,7 @@ if(process.env.DATABASE_URL) {
 	connectionString = "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading";	
 } 
 
-massive(connectionString).then(massivInstance => {
+massive(connectionString).then(massiveInstance => {
 
 	app.set('db', massiveInstance);
 
