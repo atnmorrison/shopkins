@@ -206,24 +206,33 @@ massive(connectionString).then(massiveInstance => {
 
 
 	app.get('/shopkins/:season', function(req, res){
+		
+
+		console.log('loading season');
+
 		const templateData = usermanager.getSessionUserData(res);
 		templateData['shopkinactive'] = true;
 		const db = app.get('db');	
-
 		const season = req.params['season'];
 
 		templateData['title'] = 'Season '+season+' Shopkins ';
 		templateData['keywords'] = 'Shopkins,Toys,Season '+season;
 
+		console.log(season);
+
+
 		if(res.locals.user) {
-			db.run('SELECT shopkins.id, name, number, season, rarity, usercollection.count FROM shopkins'+
+			db.query('SELECT shopkins.id, name, number, season, rarity, usercollection.count FROM shopkins'+
 					' LEFT OUTER JOIN (SELECT * FROM collection WHERE userid = $1 ) AS usercollection ON shopkins.id = usercollection.shopkinid'+
-					' WHERE season=$2 ORDER BY season, number', [res.locals.user.id, season], function(err, shopkins){
+					' WHERE season=$2 ORDER BY season, number', [res.locals.user.id, season]).then(shopkins => {
 						templateData['shopkins'] = shopkins;
 						res.render('shopkins', templateData);
 					});
 		} else {
-			db.shopkins.find({season: season}, {order: "season,number"}, function(err, shopkins){
+
+			console.log('getting shopkins');
+
+			db.shopkins.find({season: season}, {order: "season,number"}).then(shopkins => {
 				templateData['shopkins'] = shopkins; 
 				res.render('shopkins', templateData);
 			})
