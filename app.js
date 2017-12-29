@@ -1,19 +1,19 @@
-const http = require('http');
-const express = require('express');
-const crypto = require('crypto');
+var http = require('http');
+var express = require('express');
+var crypto = require('crypto');
 const massive = require('massive');
-const mustacheExpress = require('mustache-express');
-const bodyParser = require('body-parser');
-const multer = require('multer');
-const session = require('client-sessions');
-const usermanager = require('./usermanager');
-const trader = require('./trader');
+var mustacheExpress = require('mustache-express');
+var bodyParser = require('body-parser');
+var multer = require('multer');
+var session = require('client-sessions');
+var usermanager = require('./usermanager');
+var trader = require('./trader');
 
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const app = express();
-const port = process.env.PORT || 3000;
+var app = express();
+const port = process.env.PORT || 3001;
 
 let connectionString;
 
@@ -52,20 +52,17 @@ massive(connectionString).then(massiveInstance => {
 		res.locals.loggedIn = false; 
 		if(req.session && req.session.username) {
 			const db = app.get('db');
-
-			db.users.findOne({username: req.session.username}, function(err, user){
-				if(err){
+			db.users.findOne({username: req.session.username}).then(user => {
 				
-				} else {
-					//clear the password field 
-					user.password = null;
-
-					res.locals.loggedIn = true;
-					res.locals.user = user;
-					req.session.username = user.username;
-				}
+				user.password = null;
+				res.locals.loggedIn = true;
+				res.locals.user = user;
+				req.session.username = user.username;
 				next();
-			});		
+			}).catch(err => {
+				console.log(err);
+				next(); 
+			})		
 		} else {
 			next();
 	 	}
@@ -113,15 +110,10 @@ massive(connectionString).then(massiveInstance => {
 		var db = app.get('db');
 		if(res.locals.user) {
 
-			db.run('SELECT trades.id, shopkins1.number as number1, shopkins2.number as number2, user1, user2, user1accepted, user2accepted, status FROM trades '+
+			db.query('SELECT trades.id, shopkins1.number as number1, shopkins2.number as number2, user1, user2, user1accepted, user2accepted, status FROM trades '+
 						' LEFT OUTER JOIN shopkins AS shopkins1 ON user1item = shopkins1.id '+
-						 ' LEFT OUTER JOIN shopkins AS shopkins2 ON user2item = shopkins2.id WHERE user1 = $1 OR user2 = $1', [res.locals.user.id], function(err, currenttrades){
+						 ' LEFT OUTER JOIN shopkins AS shopkins2 ON user2item = shopkins2.id WHERE user1 = $1 OR user2 = $1', [res.locals.user.id]).then(currenttrades => {
 						 
-						 	if(err) {
-						 		console.log(err);
-						 	}
-
-
 						 	var tradeset = [];
 						 	for(var i=0; i<currenttrades.length; ++i) {
 
@@ -175,13 +167,9 @@ massive(connectionString).then(massiveInstance => {
 			var db = app.get('db');
 			var tradeid = req.params.tradeid;
 
-			db.trades.find({id:tradeid}, function(err, trades){
+			db.trades.find({id:tradeid}).then(trades => {
 
 				var trade = trades[0];
-
-				if(err) {
-					res.send(JSON.stringify({error: err}));
-				}
 
 				if(trade.user1 == res.locals.user.id) {
 					trade.user1accepted = true;
@@ -189,15 +177,15 @@ massive(connectionString).then(massiveInstance => {
 					trade.user2accepted = true; 
 				}
 
-				db.trades.save(trade, function(err, updatedTrade){
+				db.trades.save(trade).then(updatedTrade => {
 
-					if(err) {
-						res.send(JSON.stringify({error: err}));
-					} else {
-						res.send(JSON.stringify(updatedTrade));
-					}
+					res.send(JSON.stringify(updatedTrade));
+				}).catch(errrr => {
+					res.send(JSON.stringify({error: err}));
+				})
 
-				});
+			}).catch(err => {
+				res.send(JSON.stringify({error: err}));
 			});
 
 		}
@@ -249,16 +237,9 @@ massive(connectionString).then(massiveInstance => {
 			const db = app.get('db');
 			const shopkinid = req.params.shopkinid;
 			//check if a collection record exists 
-			db.collection.find({userid:res.locals.user.id, shopkinid: shopkinid}, function(err, collection){
+			db.collection.find({userid:res.locals.user.id, shopkinid: shopkinid}).then(collection => {
 
 				console.log('find requst completed');
-
-				if(err){
-
-					console.log(error);
-
-					res.send(JSON.stringify({error: err}));
-				} else {
 
 					console.log(collection);
 
@@ -280,48 +261,57 @@ massive(connectionString).then(massiveInstance => {
 					console.log(row);
 					//save the collection recrod
 
-					db.collection.save(row, function(err, savedCollection){					
+					db.collection.save(row).then(savedCollection => {			
 						
 						console.log(err);
 						console.log(savedCollection);
 
-						if(err){
-							res.send(JSON.stringify({error: err}));
-						} else {
-							res.send(JSON.stringify(savedCollection));
-						}
+						res.send(JSON.stringify(savedCollection));
+						
+					}).catch(err => {
+						res.send(JSON.stringify({error: err}));
 					});
-				}
+				
 
-
+			}).catch(err => {
+				res.send(JSON.stringify({error: err}));
 			});
 		}
 	});
 
 	app.get('/myshopkins', function(req, res){
 		
-		const db = app.get('db');
-		const templateData = usermanager.getSessionUserData(res);
+
+		console.log('in my shopkins');
+
+
+		let db = app.get('db');
+		let templateData = usermanager.getSessionUserData(res);
 		templateData['myshopkins'] = true;
+		
+		
+		console.log(res.locals.user);
+
 		if(res.locals.user) {
 
-
+			console.log('loading');
 			console.log(res.locals.user.trading_active);
 
 			if(res.locals.user.trading_active)
 				templateData['active'] = res.locals.user.trading_active;
 
-			db.run('SELECT shopkins.id, name, number, season, rarity, collection.count FROM collection'+
-					' INNER JOIN shopkins ON shopkins.id = collection.shopkinid'+
-					' WHERE collection.userid = $1 ORDER BY season, number', [res.locals.user.id], function(err, shopkins){
-						
-						if(err)
-							console.log(err);
-						else 
-							templateData['shopkins'] = shopkins;
-						
-						res.render('myshopkins', templateData);
 
+
+			db.query('SELECT shopkins.id, name, number, season, rarity, collection.count FROM collection'+
+					' INNER JOIN shopkins ON shopkins.id = collection.shopkinid'+
+					' WHERE collection.userid = $1 ORDER BY season, number', [res.locals.user.id]).then(shopkins => {
+						
+
+					templateData['shopkins'] = shopkins;	
+					res.render('myshopkins', templateData);
+
+			}).catch(err => {
+				console.log(err);	
 			});
 		} else {
 			res.redirect('login');
@@ -339,14 +329,14 @@ massive(connectionString).then(massiveInstance => {
 			console.log(req.body.checked);
 			console.log(res.locals.user.id)
 
-			db.run('UPDATE users SET trading_active = $1 WHERE id = $2', [req.body.checked, res.locals.user.id], function(err, user){
+			db.query('UPDATE users SET trading_active = $1 WHERE id = $2', [req.body.checked, res.locals.user.id]).then(user => {
 
 				if(err) {
 					console.log(err);
 				} else {
 
 					if(req.body.checked) {
-						db.run('SELECT shopkinid FROM collection WHERE userid = $1 AND count > 1', [res.locals.user.id], function(err, collections){
+						db.query('SELECT shopkinid FROM collection WHERE userid = $1 AND count > 1', [res.locals.user.id]).then(collections => {
 
 							for(let i=0; i<collections.length; ++i) {
 							
@@ -363,42 +353,35 @@ massive(connectionString).then(massiveInstance => {
 
 	app.post('/remove/:shopkinid', function(req, res){
 
-		const db = app.get('db');
-		const shopkinid = req.params.shopkinid;
+		let db = app.get('db');
+		let shopkinid = req.params.shopkinid;
 
 		if(!res.locals.user){
 			res.send('{"error":"login"}');
 		} else {
-			db.collection.find({userid:res.locals.user.id, shopkinid: shopkinid}, function(err, colRecord){
+			db.collection.find({userid:res.locals.user.id, shopkinid: shopkinid}).then( colRecord => {
 
-				if(err) {
-					console.log(error);
-					res.send(JSON.stringify({error: err}));				
-				} else {
+
 
 					let row = colRecord[0];
-
 					if(row.count == 1) {
-						db.collection.destroy(row, function(err, colDestroyed){
-							if(err) {
-								res.send({"error":err});
-							} else {
-								res.send('{"success": true}');
-							}
+						db.collection.destroy(row).then(colDestroyed => {
+							res.send('{"success": true}');
+						}).catch(err => {
+							res.send({"error":err});
 						});
 					} else {
 						row.count = row.count - 1;
-						db.collection.save(row, function(err, colUpdated){
-							if(err) {
-								res.send({"error":err});
-							} else {
-								res.send('{"success": true}');
-							}
+						db.collection.save(row).then(colUpdated => {
+							res.send('{"success": true}');
+						}).catch(err => {
+							res.send({"error":err});
 						});
 					}
 
-				}
-
+			}).catch(err => {
+				console.log(err);
+				res.send(JSON.stringify({error: err}));
 			});
 		}
 
@@ -444,11 +427,21 @@ massive(connectionString).then(massiveInstance => {
 
 	app.post('/login', function(req, res){
 
-		const db = app.get('db');
+		let db = app.get('db');
 		usermanager.verifyPassword(req.body.username, req.body.password, db, function(success){
+			
+			console.log('Success '+success);
+
 			if(success){
+
+				console.log('redirecting')
+
 				req.session.username = req.body.username;
-				res.redirect('myshopkins');
+
+
+				console.log('set the username');
+				res.redirect('back');
+
 			} else {
 				res.render('login', {errors: [{error: 'Invalid username or password'}]});
 			}
@@ -476,8 +469,7 @@ massive(connectionString).then(massiveInstance => {
 		//validate the token 
 
 		//if it's valid show the reset password form with the token other wise show access denied 
-		templateData['token'] = req.params.token; 
-
+		templateData['token'] = req.params.token;
 		console.log(templateData['token']);
 		res.render('resetpassword', templateData);
 
@@ -505,23 +497,18 @@ massive(connectionString).then(massiveInstance => {
 		const db = app.get('db');
 		const templateData = usermanager.getSessionUserData(res);
 
-
-		db.users.find({}, function(err, users){
-
-			if(err)  {
-				res.render('admin-users', templateData);
-			} else {
-				templateData['users'] = users;
-				res.render('admin-users', templateData);
-			}
-
+		db.users.find({}).then(users => {
+			templateData['users'] = users;
+			res.render('admin-users', templateData);
+		}).catch(err => {
+			res.render('admin-users', templateData);
 		});	
 
 	});
 
 	app.get('/admin/shopkins', function(req, res){
 		const db = app.get('db');
-		db.shopkins.find({}, function(err, shopkins){
+		db.shopkins.find({}).then(shopkins => {
 			res.render('admin-shopkins', {'shopkins': shopkins || []});
 		});
 	});
@@ -532,7 +519,7 @@ massive(connectionString).then(massiveInstance => {
 		var db = app.get('db');
 		var shopkinId = req.params.id;
 
-		db.shopkins.find({id: shopkinId}, function(err, shopkin){
+		db.shopkins.find({id: shopkinId}).then(shopkin => {
 			res.setHeader('Content-Type','application/json');
 			res.send(JSON.stringify(shopkin));
 		});
@@ -545,15 +532,12 @@ massive(connectionString).then(massiveInstance => {
 		const db = app.get('db');
 		const shopkinId = req.params.id; 
 
-		db.shopkins.destroy({id:shopkinId}, function(err, shopkin){
-			if(err) {
-				res.setHeader('Content-Type', 'application/json');
-				res.send('{"error" : '+JSON.stringify(err)+'}');
-			} else {
-				res.setHeader('Content-Type', 'application/json');
-				res.send(JSON.stringify(shopkin));
-			}
-
+		db.shopkins.destroy({id:shopkinId}).then(shopkin => {
+			res.setHeader('Content-Type', 'application/json');
+			res.send(JSON.stringify(shopkin));
+		}).catch(err => {
+			res.setHeader('Content-Type', 'application/json');
+			res.send('{"error" : '+JSON.stringify(err)+'}');
 		});
 
 	});
@@ -561,14 +545,14 @@ massive(connectionString).then(massiveInstance => {
 	app.post('/admin/save/shopkin', function(req, res){
 		const db = app.get('db');
 		const shopkin = req.body;
-		db.shopkins.save(shopkin, function(err, shopkin){
+		db.shopkins.save(shopkin).then(shopkin => {
 			res.setHeader('Content-Type','application/json');
 			res.send(JSON.stringify(shopkin));
 		});
 	})
 
 	app.listen(port, function(){
-		console.log('Example app listening on port 3000!');
+		console.log('Example app listening on port '+port+'!');
 	})
 
 }).catch(error => console.log(error.message));

@@ -75,9 +75,9 @@
 
 	exports.getSessionUserData = function(res) {
 
-		var userData = {};
+		let userData = {};
 
-		console.log(res.locals.loggedIn);
+		console.log('is logged in'+res.locals.loggedIn);
 
 		if(res.locals.loggedIn) {
 
@@ -96,7 +96,10 @@
 	exports.verifyPassword = function(username, password, db, cb){
 
 		db.users.findOne({username: username}).then( user => {
-			var salt = Buffer.from(user.salt, "hex");
+			let salt = Buffer.from(user.salt, "hex");
+
+			console.log(salt);
+
 			crypto.pbkdf2(password, salt, 100000, 512, 'sha512', (err, key) => {
 				if(user.password == key.toString('hex')){
 					cb(true);
@@ -105,6 +108,9 @@
 				}
 			});
 
+		}).catch(err =>{
+			console.log(err);
+			cb(false);
 		});
 
 	}
