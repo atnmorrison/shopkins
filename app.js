@@ -20,7 +20,7 @@ let connectionString;
 if(process.env.DATABASE_URL) {
 	connectionString = process.env.DATABASE_URL+"?ssl=true";
 } else {
-	connectionString = "postgres://postgres:Etienne!77@localhost:5433/shopkinstrading";	
+	connectionString = "postgres://postgres:etienne77@localhost:5433/shopkinstrading";	
 } 
 
 massive(connectionString).then(massiveInstance => {
