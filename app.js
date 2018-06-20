@@ -17,7 +17,7 @@ let connectionString;
 if(process.env.DATABASE_URL) {
 	connectionString = process.env.DATABASE_URL+"?ssl=true";
 } else {
-	connectionString = "postgres://postgres:etienne77@localhost:5433/shopkinstrading";	
+	connectionString = "postgres://postgres:etienne77@localhost:5433/postgres";	
 } 
 
 massive(connectionString).then(massiveInstance => {
@@ -450,7 +450,7 @@ massive(connectionString).then(massiveInstance => {
 		res.render('resetpassword', templateData);
 	});
 
-	app.get('/resetpassword:/token', function(req, res){
+	app.get('/resetpassword/:token', function(req, res){
 		const db = app.get('db');
 		const templateData = usermanager.getSessionUserData(res);
 
