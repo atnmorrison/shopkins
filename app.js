@@ -7,11 +7,8 @@ var bodyParser = require('body-parser');
 var multer = require('multer');
 var session = require('client-sessions');
 var usermanager = require('./usermanager');
+var mailer = require('./mailer');
 var trader = require('./trader');
-
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
 var app = express();
 const port = process.env.PORT || 3001;
 
@@ -402,16 +399,7 @@ massive(connectionString).then(massiveInstance => {
 
 		if(errors.length == 0) {
 			usermanager.createUser(userData, app.get('db'));
-
-			const msg = {
-				to: userData.email,
-				from: 'scott@morrisonlive.ca',
-				subject: 'Welcome to Shopkins Tradding Post!',
-				text: 'Make sure to setup your collection and we\'ll notify you when we find a trade match with your doubles',
-				html: '<strong>Make sure to setup your collection and we\'ll notify you when we find a trade match with your doubles</strong>'
-			};
-
-			sgMail.send(msg);
+			mailer.sendWelcomeEmail(userData); 
 			res.render('message', {'message':'Thanks for registering! You can now setup you collection and start trading.'});
 
 		} else {
