@@ -79,7 +79,7 @@ $('.add-collection').click(function(event){
 			var collection = JSON.parse(data);
 
 			if(collection['error'] == 'login') {
-				window.location.href = '/login';
+				window.location.href = '/user/login';
 			} else {
 				console.log('collection count: '+collection.count);
 				counter.text(collection.count);

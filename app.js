@@ -6,7 +6,9 @@ var mustacheExpress = require('mustache-express');
 var bodyParser = require('body-parser');
 var multer = require('multer');
 var session = require('client-sessions');
-var usermanager = require('./usermanager');
+var usermanager = require('./controllers/usermanager');
+var userRoutes = require('./routers/user');
+var adminRoutes = require('./routers/admin');
 var mailer = require('./mailer');
 var trader = require('./trader');
 var app = express();
@@ -65,15 +67,11 @@ massive(connectionString).then(massiveInstance => {
 	 	}
 	});
 
-
-
 	// authentication check middleware
 	app.use(function(req, res, next){
-
-
 		if(req.url.startsWith('/admin')) {
 			if(!res.locals.user || res.locals.user.username != 'scott@morrisonlive.ca') {
-				res.redirect('/login');
+				res.redirect('/user/login');
 			} else {
 				next();
 			}
@@ -82,10 +80,8 @@ massive(connectionString).then(massiveInstance => {
 		}
 	});
 
+	app.use('/user', userRoutes);
 
-	/**
-	 * Application routes
-	 */
 
 	app.get('/', function(req, res){
 		var templateData = usermanager.getSessionUserData(res);
@@ -149,7 +145,7 @@ massive(connectionString).then(massiveInstance => {
 
 						 });
 		} else {
-			res.redirect('login');
+			res.redirect('/user/login');
 		}
 
 	});
@@ -311,7 +307,7 @@ massive(connectionString).then(massiveInstance => {
 				console.log(err);	
 			});
 		} else {
-			res.redirect('login');
+			res.redirect('/user/login');
 		}
 
 	});
@@ -382,161 +378,6 @@ massive(connectionString).then(massiveInstance => {
 			});
 		}
 
-	})
-
-
-	/**
-	 * User mangement routes
-	 */ 
-	app.get('/register', function(req, res){
-		res.render('register');
-	});
-
-	app.post('/doRegistration', function(req, res){
-		
-		const userData = req.body;
-		const errors = usermanager.validateNewUserForm(userData);
-
-		if(errors.length == 0) {
-			usermanager.createUser(userData, app.get('db'));
-			mailer.sendWelcomeEmail(userData); 
-			res.render('message', {'message':'Thanks for registering! You can now setup you collection and start trading.'});
-
-		} else {
-			res.render('register', {'errors': errors, 'values':userData});
-		}
-
-	});
-
-	app.get('/login', function(req, res){
-		res.render('login');
-	});
-
-
-	app.post('/login', function(req, res){
-
-		let db = app.get('db');
-		usermanager.verifyPassword(req.body.username, req.body.password, db, function(success){
-			
-			console.log('Success '+success);
-
-			if(success){
-
-				console.log('redirecting')
-
-				req.session.username = req.body.username;
-
-
-				console.log('set the username');
-				res.redirect('back');
-
-			} else {
-				res.render('login', {errors: [{error: 'Invalid username or password'}]});
-			}
-		});
-			
-	});
-
-
-	app.get('/logout', function(req, res){
-		req.session.destroy(); 
-		res.redirect('/');
-	});
-
-	app.get('/resetpassword', function(req, res){
-		const db = app.get('db');
-		const templateData = usermanager.getSessionUserData(res);
-		templateData['notoken'] = true; 
-		res.render('resetpassword', templateData);
-	});
-
-	app.get('/resetpassword/:token', function(req, res){
-		const db = app.get('db');
-		const templateData = usermanager.getSessionUserData(res);
-
-		//validate the token 
-
-		//if it's valid show the reset password form with the token other wise show access denied 
-		templateData['token'] = req.params.token;
-		console.log(templateData['token']);
-		res.render('resetpassword', templateData);
-
-	});
-
-	app.post('/resetpassword', function(req, res) {
-
-		console.log(req.body);
-
-		const token = req.body.token;
-		const password = req.body.password; 
-		const password_confirmation = req.body.password_confirmation; 
-
-	});
-
-
-	/**
-	 * Administration routes
-	 */
-
-
-	app.get('/admin/users', function(req, res){
-
-
-		const db = app.get('db');
-		const templateData = usermanager.getSessionUserData(res);
-
-		db.users.find({}).then(users => {
-			templateData['users'] = users;
-			res.render('admin-users', templateData);
-		}).catch(err => {
-			res.render('admin-users', templateData);
-		});	
-
-	});
-
-	app.get('/admin/shopkins', function(req, res){
-		const db = app.get('db');
-		db.shopkins.find({}).then(shopkins => {
-			res.render('admin-shopkins', {'shopkins': shopkins || []});
-		});
-	});
-
-
-	app.get('/admin/shopkin/:id', function(req, res){
-
-		var db = app.get('db');
-		var shopkinId = req.params.id;
-
-		db.shopkins.find({id: shopkinId}).then(shopkin => {
-			res.setHeader('Content-Type','application/json');
-			res.send(JSON.stringify(shopkin));
-		});
-
-	})
-
-
-	app.post('/admin/remove/shopkin/:id', function(req, res){
-
-		const db = app.get('db');
-		const shopkinId = req.params.id; 
-
-		db.shopkins.destroy({id:shopkinId}).then(shopkin => {
-			res.setHeader('Content-Type', 'application/json');
-			res.send(JSON.stringify(shopkin));
-		}).catch(err => {
-			res.setHeader('Content-Type', 'application/json');
-			res.send('{"error" : '+JSON.stringify(err)+'}');
-		});
-
-	});
-
-	app.post('/admin/save/shopkin', function(req, res){
-		const db = app.get('db');
-		const shopkin = req.body;
-		db.shopkins.save(shopkin).then(shopkin => {
-			res.setHeader('Content-Type','application/json');
-			res.send(JSON.stringify(shopkin));
-		});
 	})
 
 	app.listen(port, function(){
