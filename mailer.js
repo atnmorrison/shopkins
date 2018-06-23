@@ -1,5 +1,11 @@
 const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+if(process.env.SENDGRID_API_KEY) {
+	sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+} else {
+	sgMail.setApiKey('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');
+}
+
 exports.sendWelcomeEmail = function(userdata) {
 	const msg = {
 		to: userdata.email,
@@ -15,25 +21,24 @@ exports.sendForgotPassword = function(email) {
 	
 	console.log('sending email');
 
-	let token = '123'
-	sgMail.setSubstitutionWrappers('%', '%');
-
+	let token = '123';
+	sgMail.setSubstitutionWrappers('-','-');
 	let msg = {
+		from: 'scott@morrisonlive.ca',
 		subject: 'Shopkins Trading Post Password Reset',
-		personalizations: {
+		personalizations: [{
 			"to": [{"email": email}],
 			"substitutions": {
-				"reset_url": ['http://www.google.com'],
+				"reset_url": 'http://www.google.com'
 			}
-		},
-		template_id: 'e3ff56dd-7111-415a-b8d0-371c0683a4f6',
-
+		}],
+		template_id: 'e3ff56dd-7111-415a-b8d0-371c0683a4f6'
 	}
 	
 	sgMail.send(msg, (err, response) => {
 
 		if(err){
-			console.log(err);
+			console.log(JSON.stringify(err));
 		} else {
 			console.log('email sent');
 		}
