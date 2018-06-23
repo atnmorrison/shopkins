@@ -13,6 +13,8 @@ exports.sendWelcomeEmail = function(userdata) {
 
 exports.sendForgotPassword = function(email) {
 	
+	console.log('sending email');
+
 	let token = '123'
 	sgMail.setSubstitutionWrappers('%', '%');
 
@@ -30,8 +32,9 @@ exports.sendForgotPassword = function(email) {
 
 		if(err){
 			console.log(err);
+		} else {
+			console.log('email sent');
 		}
-
 
 	});
 
