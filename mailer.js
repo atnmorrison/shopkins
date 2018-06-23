@@ -19,13 +19,19 @@ exports.sendForgotPassword = function(email) {
 	sgMail.setSubstitutionWrappers('%', '%');
 
 	let msg = {
-		to: email,
 		from: 'scott@morrisonlive.ca',
 		subject: 'Shopkins Trading Post Password Reset',
+		personalization: {
+			"to": [
+				email,
+				email
+			  ],
+			  "sub": {
+				"reset_url": ['http://www.google.com'],
+			  }
+		},
 		template_id: 'e3ff56dd-7111-415a-b8d0-371c0683a4f6',
-		substitutions: {
-			'reset_url' : 'https://hidden-fortress-14040.herokuapp.com/user/'+token
-		}
+
 	}
 	
 	sgMail.send(msg, (err, response) => {
