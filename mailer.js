@@ -1,10 +1,5 @@
 const sgMail = require('@sendgrid/mail');
-
-if(process.env.SENDGRID_API_KEY) {
-	sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-} else {
-	sgMail.setApiKey();
-}
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.sendWelcomeEmail = function(userdata) {
 	const msg = {
@@ -12,7 +7,7 @@ exports.sendWelcomeEmail = function(userdata) {
 		from: 'scott@morrisonlive.ca',
 		subject: 'Welcome to Shopkins Tradding Post',
 		text: 'Make sure to setup your collection and we\'ll notify you when we find a trade match with your doubles',
-		html: '<strong>Make sure to setup your collection and we\'ll notify you when we find a trade match with your doubles</strong>'
+		html: '<strong>Make sure to setup yourgit collection and we\'ll notify you when we find a trade match with your doubles</strong>'
 	};
 	sgMail.send(msg);
 };

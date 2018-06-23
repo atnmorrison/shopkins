@@ -1,3 +1,4 @@
+require('dotenv').config();
 var http = require('http');
 var express = require('express');
 var crypto = require('crypto');
@@ -12,7 +13,7 @@ var adminRoutes = require('./routers/admin');
 var mailer = require('./mailer');
 var trader = require('./trader');
 var app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT;
 
 let connectionString;
 
