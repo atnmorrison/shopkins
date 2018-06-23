@@ -59,20 +59,17 @@ router.get('/logout', function(req, res){
 });
 
 router.get('/resetpassword', function(req, res){
-    const db = app.get('db');
+    const db = router.get('db');
     res.render('resetpassword', templateData);
 });
 
-router.get('/changepassword/:token', function(req, res){
-    const db = app.get('db');
+router.get('/changepassword(/:token)?/', function(req, res){
+    const db = router.get('db');
     const templateData = usermanager.getSessionUserData(res);
-    templateData['notoken'] = true; 
 
-    //validate the token 
-
-    //if it's valid show the reset password form with the token other wise show access denied 
     templateData['token'] = req.params.token;
-    console.log(templateData['token']);
+    templateData['notoken'] = templateData['token'] === undefined; 
+    console.log(templateData['notoken']);
     res.render('changepassword', templateData);
 
 });
@@ -88,8 +85,6 @@ router.post('/changepassword', function(req, res) {
 
 router.get('/forgotpassword', function(req, res) {
 
-    console.log(req.body);
-
     const templateData = usermanager.getSessionUserData(res);
 
     const token = req.body.token;
@@ -98,5 +93,13 @@ router.get('/forgotpassword', function(req, res) {
     res.render('forgotpassword', templateData);
 
 });
+
+router.post('/forgotpassword', function(req, res){
+
+    const templateData = usermanager.getSessionUserData(res);
+    const email = req.body.email;
+    res.render('forgotpasswordconfirmation');
+
+})
 
 module.exports = router;

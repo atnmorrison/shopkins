@@ -11,15 +11,29 @@ exports.sendWelcomeEmail = function(userdata) {
 	sgMail.send(msg);
 };
 
-exports.sendForgotPassword = function(email, token) {
-	const msg = {
+exports.sendForgotPassword = function(email) {
+	
+	let token = '123'
+	let msg = {
 		to: email,
 		from: 'scott@morrisonlive.ca',
 		subject: 'Shopkins Trading Post Password Reset',
 		text: 'A reset password request has been made for your shopkins trading post account click here to reset',
-		html: '<strong>A reset password request has been made for your shopkins trading post account click here to reset</strong>'
+		html: '<p></p>'
 	}
-	sgMail.send(msg);
+	msg.addSubstitution('%reset_url%', 'https://hidden-fortress-14040.herokuapp.com/user/changepassword/'+token);
+
+	msg.addFilter('templates','enable',1);
+	msg.addFilter('templates', 'template_id', 'e3ff56dd-7111-415a-b8d0-371c0683a4f6');
+	sgMail.send(msg, (err, response) => {
+
+		if(err){
+			console.log(err);
+		}
+
+
+	});
+
 };
 
 exports.sendTradeFound = function(userdata, trade) {
