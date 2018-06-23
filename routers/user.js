@@ -98,6 +98,10 @@ router.post('/forgotpassword', function(req, res){
 
     const templateData = usermanager.getSessionUserData(res);
     const email = req.body.email;
+
+    console.log('$$ >> email: '+email);
+
+    mailer.sendForgotPassword(email);
     res.render('forgotpasswordconfirmation');
 
 })
