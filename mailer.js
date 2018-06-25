@@ -12,11 +12,8 @@ exports.sendWelcomeEmail = function(userdata) {
 	sgMail.send(msg);
 };
 
-exports.sendForgotPassword = function(email) {
+exports.sendForgotPassword = function(email, token) {
 	
-	console.log('sending email');
-
-	let token = '123';
 	sgMail.setSubstitutionWrappers('-','-');
 	let msg = {
 		from: 'scott@morrisonlive.ca',
@@ -24,7 +21,7 @@ exports.sendForgotPassword = function(email) {
 		personalizations: [{
 			"to": [{"email": email}],
 			"substitutions": {
-				"reset_url": 'http://www.google.com'
+				"reset_url": 'https://hidden-fortress-14040.herokuapp.com/changepassword/'+token
 			}
 		}],
 		template_id: 'e3ff56dd-7111-415a-b8d0-371c0683a4f6'

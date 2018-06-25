@@ -1,4 +1,25 @@
-	crypto = require('crypto');
+	const crypto = require('crypto');
+	const uuidv4 = require('uuid/v4');
+	const mailer = require('../mailer');
+
+	exports.resetUserPassword = function(email, db) {
+		db.users.findOne({email: email}).then(user => {
+			if(user) {
+				const resetToken = uuidv4();
+				user.password_reset = true;
+				user.password_reset_token = resetToken;
+				db.users.save(user).then(dbUser => {
+					mailer.sendForgotPassword(email, resetToken);
+				}).catch(err => {
+					console.log(error);
+				});
+			}
+		}).catch(err => {
+			console.log(err);
+		});
+
+	};
+
 	exports.createUser = function(userData, db){
 		
 		var salt = crypto.randomBytes(32);

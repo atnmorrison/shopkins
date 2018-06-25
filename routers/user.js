@@ -3,6 +3,7 @@ var router = express.Router();
 var usermanager = require('../controllers/usermanager');
 var mailer = require('../mailer');
 
+
 router.get('/register', function(req, res){
     res.render('register');
 });
@@ -98,10 +99,9 @@ router.post('/forgotpassword', function(req, res){
 
     const templateData = usermanager.getSessionUserData(res);
     const email = req.body.email;
-
-    console.log('$$ >> email: '+email);
-
-    mailer.sendForgotPassword(email);
+    
+    //get the user by email
+    usermanager.resetUserPassword(email);
     res.render('forgotpasswordconfirmation');
 
 })
