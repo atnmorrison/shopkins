@@ -14,7 +14,7 @@ router.post('/doRegistration', function(req, res){
     const errors = usermanager.validateNewUserForm(userData);
 
     if(errors.length == 0) {
-        usermanager.createUser(userData, app.get('db'));
+        usermanager.createUser(userData, req.app.get('db'));
         mailer.sendWelcomeEmail(userData); 
         res.render('message', {'message':'Thanks for registering! You can now setup you collection and start trading.'});
 
@@ -31,7 +31,7 @@ router.get('/login', function(req, res){
 
 router.post('/login', function(req, res){
 
-    let db = app.get('db');
+    let db = req.app.get('db');
     usermanager.verifyPassword(req.body.username, req.body.password, db, function(success){
         
         console.log('Success '+success);
@@ -60,12 +60,12 @@ router.get('/logout', function(req, res){
 });
 
 router.get('/resetpassword', function(req, res){
-    const db = router.get('db');
+    const db = req.app.get('db');
     res.render('resetpassword', templateData);
 });
 
 router.get('/changepassword(/:token)?/', function(req, res){
-    const db = router.get('db');
+    const db = req.app.get('db');
     const templateData = usermanager.getSessionUserData(res);
 
     templateData['token'] = req.params.token;
@@ -99,9 +99,9 @@ router.post('/forgotpassword', function(req, res){
 
     const templateData = usermanager.getSessionUserData(res);
     const email = req.body.email;
-    
-    //get the user by email
-    usermanager.resetUserPassword(email);
+    const db = req.app.get('db');
+
+    usermanager.resetUserPassword(email, db);
     res.render('forgotpasswordconfirmation');
 
 })

@@ -2,8 +2,12 @@
 	const uuidv4 = require('uuid/v4');
 	const mailer = require('../mailer');
 
+
 	exports.resetUserPassword = function(email, db) {
-		db.users.findOne({email: email}).then(user => {
+
+		console.log(db);
+
+		db.users.findOne({username: email}).then(user => {
 			if(user) {
 				const resetToken = uuidv4();
 				user.password_reset = true;
