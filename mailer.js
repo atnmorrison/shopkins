@@ -21,7 +21,7 @@ exports.sendForgotPassword = function(email, token) {
 		personalizations: [{
 			"to": [{"email": email}],
 			"substitutions": {
-				"reset_url": 'https://hidden-fortress-14040.herokuapp.com/changepassword/'+token
+				"reset_url": 'https://hidden-fortress-14040.herokuapp.com/user/changepassword/'+token
 			}
 		}],
 		template_id: 'e3ff56dd-7111-415a-b8d0-371c0683a4f6'
