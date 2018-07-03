@@ -49,7 +49,7 @@
 		user.username = userData.email;
 		
 
-		setUserPassword(user, userData.password, (user) => {
+		module.exports.setUserPassword(user, userData.password, (user) => {
 
 			db.addresses.save(address).then(dbAddress => {
 
