@@ -53,19 +53,17 @@
 
 			db.addresses.save(address).then(dbAddress => {
 
-				if(err){
-				  console.log(err);
-				}
-
 				console.log(dbAddress);
 
 				user.address_id = dbAddress.id;
 				db.users.save(user).then( dbUser => {
-					if(err) {
-						console.log(err);
-					}
+
+				}).catch(err => {
+					console.log(err);
 				});
 
+			}).catch(err => {
+				console.log(err)
 			});
 
 		});
