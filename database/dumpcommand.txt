@@ -1,2 +1,2 @@
-pg_dump -Fc --no-acl -no-owner -h localhost -p 5433 -U postgres --schema=public shopkinstrading > dump[date].dump
+pg_dump -f dump[date].dump -Fc --no-acl -no-owner -h localhost -p 5433 -U postgres --schema=public postgres 
 heroku pg:backups:restore "http://figur8m2-developer-edition.na22.force.com/resource/dump23052017" DATABASE_URL

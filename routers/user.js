@@ -39,10 +39,7 @@ router.post('/login', function(req, res){
         if(success){
 
             console.log('redirecting')
-
             req.session.username = req.body.username;
-
-
             console.log('set the username');
             res.redirect('back');
 
@@ -65,22 +62,93 @@ router.get('/resetpassword', function(req, res){
 });
 
 router.get('/changepassword(/:token)?/', function(req, res){
-    const db = req.app.get('db');
-    const templateData = usermanager.getSessionUserData(res);
-
+    
+    let templateData = usermanager.getSessionUserData(res);
     templateData['token'] = req.params.token;
     templateData['notoken'] = templateData['token'] === undefined; 
-    console.log(templateData['notoken']);
-    res.render('changepassword', templateData);
+    const db = req.app.get('db');
+
+    if(templateData['notoken'] && res.locals.user) {
+        
+        console.log(templateData['notoken']);
+        res.render('changepassword', templateData);
+    } else if(!templateData['notoken']){
+
+        db.findOne({password_reset_token: templateData['notoken']}).then(user => {
+            res.locals.token = req.params.token
+            res.render('changepassword');
+        }).error(err => {
+            console.log(err);
+            res.redirect('/user/login');
+        });
+
+    } else{
+        res.redirect('/user/login');
+    }
 
 });
 
 router.post('/changepassword', function(req, res) {
 
-    console.log(req.body);
-    const token = req.body.token;
-    const password = req.body.password; 
-    const password_confirmation = req.body.password_confirmation; 
+    let db = req.app.get('db');
+
+    let user = res.locals.user;
+    let password = req.body.new_password;
+    let token = req.body.token;
+
+    let templateData = usermanager.getSessionUserData(res);
+    templateData['token'] = token;
+    templateData['notoken'] = (token === undefined || token === '');
+
+    if(req.body.new_password != req.body.new_password_confirmation) {
+        templateData['errors'] = [{error: 'passwords must match'}];
+        res.render('changepassword',  templateData);
+        return;
+    }
+
+    if(user) {
+        usermanager.verifyPassword(user.username, req.body.current_password, db, function(valid){
+            if(valid) {              
+
+                console.log('user output');
+                console.log(user);
+
+                usermanager.setUserPassword(user, password, (user) => {
+                    db.users.save(user).then( dbUser => {
+                        res.render('changepasswordconfirmation');
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                });
+            } else {
+                console.log('invalid current password');
+                templateData['errors'] = [{error: 'Invalid current password'}];
+                res.render('changepassword',  templateData);
+            }
+
+        });
+        //update password
+    } else if (token){
+        //validate token 
+        user.findOne({password_reset_token: token}).then(user => {
+            usermanager.setUserPassword(user, password, (user) => {
+                db.users.save(user).then( dbUser => {
+                    res.render('changepasswordconfirmation');
+                }).error(err => {
+                    templateData['errors'] = [{error: 'Invalid token'}];
+                    res.render('changepassword', templateData);
+                });
+            });        
+        }).error(err => {
+            templateData['errors'] = [{error: 'Invalid token'}];
+            res.render('changepassword', templateData);
+        })
+        
+
+    } else {
+        templateData['errors'] = [{error: 'Invalid request'}];
+        res.render('changepassword', templateData);
+    }
 
 });
 

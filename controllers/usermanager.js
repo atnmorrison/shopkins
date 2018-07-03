@@ -3,6 +3,15 @@
 	const mailer = require('../mailer');
 
 
+	exports.setUserPassword = function(user, password, cb) {
+		var salt = crypto.randomBytes(32);
+		user.salt = salt.toString('hex');
+		crypto.pbkdf2(password, salt, 100000, 512, 'sha512', (err, key) => {
+			user.password = key.toString('hex'); 
+			cb(user);
+		});
+	}
+
 	exports.resetUserPassword = function(email, db) {
 
 		console.log(db);
@@ -38,37 +47,29 @@
 		user.firstname = userData.firstName;
 		user.lastname = userData.lastName;
 		user.username = userData.email;
-		user.salt = salt.toString('hex');
-
-		crypto.pbkdf2(userData.password, salt, 100000, 512, 'sha512', (err, key) => {
-	  		if (err) throw err;
-	  	
-	  		user.password = key.toString('hex'); 
-	  		console.log(user.password);
-
-	  		db.addresses.save(address).then(dbAddress => {
-
-	  			if(err){
-	  			  console.log(err);
-	  			}
-
-	  			console.log(dbAddress);
-
-	  			user.address_id = dbAddress.id;
-	  			db.users.save(user).then( dbUser => {
-	  				if(err) {
-	  					console.log(err);
-	  				}
-	  			});
-
-	  		});
-
-	  		console.log(key.toString('hex'));  // '3745e48...aa39b34'
 		
+
+		setUserPassword(user, userData.password, (user) => {
+
+			db.addresses.save(address).then(dbAddress => {
+
+				if(err){
+				  console.log(err);
+				}
+
+				console.log(dbAddress);
+
+				user.address_id = dbAddress.id;
+				db.users.save(user).then( dbUser => {
+					if(err) {
+						console.log(err);
+					}
+				});
+
+			});
+
 		});
 
-
-		console.log('creating user');
 	};
 
 	exports.validateNewUserForm = function(userData){
@@ -124,6 +125,8 @@
 			let salt = Buffer.from(user.salt, "hex");
 
 			console.log(salt);
+
+			console.log(password);
 
 			crypto.pbkdf2(password, salt, 100000, 512, 'sha512', (err, key) => {
 				if(user.password == key.toString('hex')){
