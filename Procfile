@@ -1,2 +1,2 @@
-release: heroku pg:backups:restore "http://figur8m2-developer-edition.na22.force.com/resource/dump23052017" DATABASE_URL
+release: pg_restore -c -C DATABASE_URL ./database/dump270620182.dump
 web: npm app.js
