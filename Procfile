@@ -1,2 +1,2 @@
-release: pg_restore -c -C ./database/dump270620182.dump
+release: pg_restore -c -C ./database/dump03252017.dump
 web: npm app.js
