@@ -74,7 +74,7 @@ router.get('/changepassword(/:token)?/', function(req, res){
         res.render('changepassword', templateData);
     } else if(!templateData['notoken']){
 
-        db.findOne({password_reset_token: templateData['notoken']}).then(user => {
+        db.user.findOne({password_reset_token: templateData['notoken']}).then(user => {
             res.locals.token = req.params.token
             res.render('changepassword');
         }).error(err => {
