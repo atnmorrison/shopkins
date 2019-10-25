@@ -91,6 +91,14 @@ massive(connectionString).then(massiveInstance => {
 		res.render('main', templateData);
 	});
 
+	app.get('/privacy', function(req, res){
+		var templateData = usermanager.getSessionUserData(res);
+		templateData['title'] = 'Shopkins Trading Post Privay Policy';
+		templateData['keywords'] = 'Shopkins,Toys,Trading,Safe'; 
+
+		res.render('privacy', templateData);
+	});
+
 	app.get('/howitworks', function(req, res){
 		var templateData = usermanager.getSessionUserData(res);
 		templateData['howitworks'] = true;
