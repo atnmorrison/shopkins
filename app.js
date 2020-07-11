@@ -241,7 +241,7 @@ massive(connectionString).then(massiveInstance => {
 			//check if a collection record exists 
 			db.collection.find({userid:res.locals.user.id, shopkinid: shopkinid}).then(collection => {
 
-				console.log('find requst completed');
+				console.log('find request completed');
 
 					console.log(collection);
 
@@ -261,7 +261,7 @@ massive(connectionString).then(massiveInstance => {
 
 
 					console.log(row);
-					//save the collection recrod
+					//save the collection record
 
 					db.collection.save(row).then(savedCollection => {			
 						
