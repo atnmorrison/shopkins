@@ -72,7 +72,9 @@ massive(connectionString).then(massiveInstance => {
 	app.use(function(req, res, next){
 		if(req.url.startsWith('/admin')) {
 			if(!res.locals.user || res.locals.user.username != 'scott@morrisonlive.ca') {
+				res.locals.returnUrl = req.url
 				res.redirect('/user/login');
+				next();
 			} else {
 				next();
 			}
@@ -247,7 +249,7 @@ massive(connectionString).then(massiveInstance => {
 
 					let row; 
 
-					if(collection.length > 1) {
+					if(collection.length > 0) {
 						row = collection[0]
 						row.count = row.count+1; 
 						trader.findTrades(res.locals.user.id, shopkinid, db);

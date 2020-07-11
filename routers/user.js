@@ -41,7 +41,11 @@ router.post('/login', function(req, res){
             console.log('redirecting')
             req.session.username = req.body.username;
             console.log('set the username');
-            res.redirect('back');
+
+            if(res.locals.returnUrl) 
+                res.redirect(res.locals.returnUrl);
+            else 
+                res.redirect('/myshopkins');
 
         } else {
             res.render('login', {errors: [{error: 'Invalid username or password'}]});
