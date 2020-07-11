@@ -247,7 +247,7 @@ massive(connectionString).then(massiveInstance => {
 
 					let row; 
 
-					if(collection.length > 0) {
+					if(collection.length > 1) {
 						row = collection[0]
 						row.count = row.count+1; 
 						trader.findTrades(res.locals.user.id, shopkinid, db);
@@ -265,13 +265,12 @@ massive(connectionString).then(massiveInstance => {
 
 					db.collection.save(row).then(savedCollection => {			
 						
-						console.log(err);
-						console.log(savedCollection);
 
 						res.send(JSON.stringify(savedCollection));
 						
 					}).catch(err => {
-						res.send(JSON.stringify({error: err}));
+						console.log(err);
+						res.send(JSON.stringify({error: err.message}));
 					});
 				
 
