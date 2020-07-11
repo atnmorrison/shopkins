@@ -76,7 +76,12 @@ $('.add-collection').click(function(event){
 	$.ajax('/add/'+shopkinid, {
 		method: 'POST',
 		success: function(data, status, xhr) {
+
+			console.log(data);
+
 			var collection = JSON.parse(data);
+
+			console.log(collection);
 
 			if(collection['error'] == 'login') {
 				window.location.href = '/user/login';
